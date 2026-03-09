@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 //kabhi bhi db ek line m connect nhi karna chahiye
 //import {DB_NAME} from "./constants";
 
-import connectDB from "./db/index.js"
+import connectDB from "./db/index.js"   //IMPORT KIA CONNECTDB (DB NAME )FROM =D:\First_Project\src\db\index.js  AND THEN WE ARE CALLING IT
 /*
 import express from "express";
 const app=express()
@@ -32,3 +32,10 @@ dotenv.config({
 })
 
 connectDB()
+//async promise retun karta toh...
+.then(()=>{
+    app.listen(process.env.PORT||8000),()=>{console.log(`server is running on ${process.env.PORT}`)}
+})
+.catch((err)=>{
+    console.log("MONGO FAILED",err)
+})
