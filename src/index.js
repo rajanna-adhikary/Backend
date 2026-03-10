@@ -32,10 +32,12 @@ dotenv.config({
 })
 
 connectDB()
-//async promise retun karta toh...
-.then(()=>{
-    app.listen(process.env.PORT||8000),()=>{console.log(`server is running on ${process.env.PORT}`)}
+//async promise return krta toh we will handle it like this
+.then(() => {
+    app.listen(process.env.PORT || 8000, () => {
+        console.log(`Server is running on port ${process.env.PORT || 8000}`)
+    })
 })
-.catch((err)=>{
-    console.log("MONGO FAILED",err)
+.catch((err) => {
+    console.log("MongoDB connection failed:", err)
 })
