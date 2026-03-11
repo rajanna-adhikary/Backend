@@ -26,7 +26,7 @@ const app=express()
     }
 })()  */
 //UPER WALA WAS ONE OF THE APPROACH
-
+import {app} from './app.js'
 dotenv.config({
     path: "./.env"
 })

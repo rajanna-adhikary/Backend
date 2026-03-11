@@ -11,7 +11,8 @@
 //     }
 // }}
 
-//another way
+//another way 
+//BENEFIR OF THIS FILE: HAR CHIZ KO HUME TRY CATCH MNHI DAALNA PADEGA(CONTROLLERS,ROUTES KE POV SE BAAT KAR RAHE HAI)
 const asyncHandler = (requestHandler) => {
     return (req, res, next) => {
         Promise.resolve(requestHandler(req, res, next)).catch((err) => next(err))

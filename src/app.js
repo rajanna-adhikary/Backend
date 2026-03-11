@@ -21,6 +21,15 @@ app.use(cookieParser())
 
 
 
+//here we are going to import all the routes , not in index.js
+//and also after doing all the shit with middlewares we are importing here(imp)
+//so we will be using app.use (middleware act kar raha na router) ab kaha direct server m hi sab likh dia so no app.get
+import userRouter from "./routes/user.routes.js"
+
+app.use("/api/v1/users",userRouter) //jab user /user hit karega tabh hu userRouter m jaenge...**1
+//i.e url now= https://localhost:8000/api/v1/users (now go to route)
+
+
 
 
 
