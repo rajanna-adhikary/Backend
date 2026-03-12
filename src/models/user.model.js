@@ -62,11 +62,10 @@ const userSchema=new Schema({
     //     ↓
     // save to database
     //Database me document save hone se pehle ye function run hoga.
-userSchema.pre("save", async function (next) {
-    if(!this.isModified("password")) return next();
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return
 
     this.password = await bcrypt.hash(this.password, 10)
-    next()
 })
 
 //after calling methods as a func we can make our own method,and also bcrypt along with encrytion, also can check for password,CRYPTOGRAPHY HAI =>TIME LAGEGA SO ASYNC AWAIT

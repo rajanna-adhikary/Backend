@@ -21,7 +21,7 @@ const uploadOnCloudinary = async (localFilePath) => {
         // file has been uploaded successfull
         //console.log("file is uploaded on cloudinary ", response.url);
         fs.unlinkSync(localFilePath)
-        return response;
+        return response; // sync (that is idhr) hum remove kar denge jo bhi files ayi hai( pehle cloudinary m aur humare local server(folder =public m reh rha tha sare media, ab hata di gayi hai to save memory))
 
     } catch (error) {
         fs.unlinkSync(localFilePath) // remove the locally saved temporary file as the upload operation got failed
