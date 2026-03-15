@@ -8,8 +8,8 @@ import {
     logoutUser, 
      
      refreshAccessToken, 
-    // changeCurrentPassword, 
-    // getCurrentUser, 
+     changeCurrentPassword, 
+     getCurrentUser, 
     // updateUserAvatar, 
     // updateUserCoverImage, 
     // getUserChannelProfile, 
