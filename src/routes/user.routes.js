@@ -10,19 +10,12 @@ import {
      refreshAccessToken, 
      changeCurrentPassword, 
      getCurrentUser, 
-    // updateUserAvatar, 
-    // updateUserCoverImage, 
-    // getUserChannelProfile, 
-    // getWatchHistory, 
-    // updateAccountDetails
+    updateUserAvatar, 
+     updateUserCoverImage, 
+    getUserChannelProfile, 
+     getWatchHistory, 
+    updateAccountDetails
 } from "../controllers/user.controller.js";
-
-
-
-
-
-
-
 
 
 
@@ -59,17 +52,59 @@ router.route("/logout").post(verifyJWT,  logoutUser)  //verufy jwt aa raha from 
 router.route("/refresh-token").post(refreshAccessToken)
 
 
+router.route("/change-password").post(verifyJWT, changeCurrentPassword)
+router.route("/current-user").get(verifyJWT, getCurrentUser)
+router.route("/update-account").patch(verifyJWT, updateAccountDetails)
+
+router.route("/avatar").patch(verifyJWT, upload.single("avatar"), updateUserAvatar)
+router.route("/cover-image").patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage)
+
+router.route("/c/:username").get(verifyJWT, getUserChannelProfile)//go dowm for this
+router.route("/history").get(verifyJWT, getWatchHistory)
 
 
 
 
 
 
+/* This is a dynamic route parameter.
 
+Example URLs:
 
+/c/rajanna
+/c/codewithharry
+/c/fireship
 
+Here:
+
+:username
+
+means variable part of the URL.
+
+Express automatically extracts it into:
+
+req.params.username
+
+Example:
+
+Request:
+
+GET /c/rajanna
+
+Then:
+
+req.params.username = "rajanna"
+
+That’s why controller uses:
+
+const { username } = req.params*/
 
 
 
 
 export default router
+
+
+
+
+
