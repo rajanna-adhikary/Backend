@@ -1,7 +1,7 @@
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/ApiError.js"
 import { User} from "../models/user.model.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {uploadOnCloudinary,deleteFromCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 import jwt from "jsonwebtoken"
@@ -87,6 +87,7 @@ const registerUser= asyncHandler(async(req,res)=>{
     const user = await User.create({
         fullName,
         avatar: avatar.url,
+        avatarPublicId: avatar.public_id,
         coverImage: coverImage?.url || "",
         email, 
         password,
@@ -174,7 +175,7 @@ const logoutUser = asyncHandler(async(req, res) => {
         req.user._id,
         {
             $unset: {
-                refreshToken: 1 // this removes the field from document
+                refreshToken: 1 // this removes the field from document//null undefined wale chiz se chuthkara
             }
         },
         {
@@ -198,7 +199,8 @@ const logoutUser = asyncHandler(async(req, res) => {
 //WAPSSSSSSSSSSSS REFRESHHHHHHHHHHHHHH TOKEN GENNNNNNNNNNNNNNNNN TAAKI ACCESS TOKENNNNNNNNNNN MILEEEEEEEEE
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken  //body wala for mobile user
+    const incomingRefreshToken =
+        req.cookies.refreshToken || req.body.refreshToken
 
     if (!incomingRefreshToken) {
         throw new ApiError(401, "unauthorized request")
@@ -209,42 +211,41 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             incomingRefreshToken,
             process.env.REFRESH_TOKEN_SECRET
         )
-    
+
         const user = await User.findById(decodedToken?._id)
-    
+
         if (!user) {
             throw new ApiError(401, "Invalid refresh token")
         }
-    
+
         if (incomingRefreshToken !== user?.refreshToken) {
             throw new ApiError(401, "Refresh token is expired or used")
-            
         }
-    
+
         const options = {
             httpOnly: true,
             secure: true
         }
-    
-        const {accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id)
-    
+
+        // ✅ FIXED
+        const { accessToken, refreshToken } =
+            await generateAccessAndRefereshTokens(user._id)
+
         return res
-        .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", newRefreshToken, options)
-        .json(
-            new ApiResponse(
-                200, 
-                {accessToken, refreshToken: newRefreshToken},
-                "Access token refreshed"
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
+            .json(
+                new ApiResponse(
+                    200,
+                    { accessToken, refreshToken },
+                    "Access token refreshed"
+                )
             )
-        )
     } catch (error) {
         throw new ApiError(401, error?.message || "Invalid refresh token")
     }
-
 })
-
 //USER CHNAGEEEEEEEEEEEEEEEE PASSSSSSSSSSSSSS
 //To change password securely, we first verify the old password using bcrypt comparison, then update the password and rely on a pre-save middleware to hash the new password before storing it.
 const changeCurrentPassword = asyncHandler(async(req, res) => {
@@ -279,30 +280,34 @@ const getCurrentUser = asyncHandler(async(req, res) => {
     ))
 })
 ///////update accountttttttttttt detailsSSSSSSSSSSSSSSSSSSSSSSSSS
-const updateAccountDetails = asyncHandler(async(req, res) => {
-    const {fullName, email} = req.body
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullName, email } = req.body
 
-    if (!fullName || !email) {
+    if (!fullName?.trim() || !email?.trim()) {
         throw new ApiError(400, "All fields are required")
+    }
+
+    const existingUser = await User.findOne({ email })
+
+    if (existingUser && existingUser._id.toString() !== req.user._id.toString()) {
+        throw new ApiError(409, "Email already in use")
     }
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
-                fullName:fullName,
-                email: email
+                fullName: fullName.trim(),
+                email: email.toLowerCase().trim()
             }
         },
-        {new: true}   //returns UPDATED document
-        
-    ).select("-password")  //returns UPDATED document//security
+        { new: true }   //THIS IS VERY IMP new wala return karega
+    ).select("-password")
 
-    return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Account details updated successfully"))
-});
-
+    return res.status(200).json(
+        new ApiResponse(200, user, "Account details updated successfully")
+    )
+})
 /////////
 const updateUserAvatar = asyncHandler(async(req, res) => {
     const avatarLocalPath = req.file?.path
@@ -311,7 +316,14 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
         throw new ApiError(400, "Avatar file is missing")
     }
 
-    //TODO: delete old image - assignment
+    //TODO: delete old image - assignment(done)
+
+    const user = await User.findById(req.user._id)
+
+    if (user?.avatarPublicId) {
+        await deleteFromCloudinary(user.avatarPublicId)
+    }
+
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
@@ -320,11 +332,12 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
         
     }
 
-    const user = await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set:{
-                avatar: avatar.url
+                avatar: avatar.url,
+                 avatarPublicId: avatar.public_id
             }
         },
         {new: true}
@@ -333,7 +346,7 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
     return res
     .status(200)
     .json(
-        new ApiResponse(200, user, "Avatar image updated successfully")
+        new ApiResponse(200, updatedUser, "Avatar image updated successfully")
     )
 })
 

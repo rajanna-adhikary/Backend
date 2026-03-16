@@ -49,7 +49,11 @@ router.route("/login").post(loginUser)
 
 //secured routes
 router.route("/logout").post(verifyJWT,  logoutUser)  //verufy jwt aa raha from auth.middleware.js
-router.route("/refresh-token").post(refreshAccessToken)
+// router.route("/refresh-token").post(refreshAccessToken)
+router.post("/refresh-token", (req, res) => {
+    console.log("🔥 REFRESH ROUTE HIT");
+    res.send("Route working");
+});
 
 
 router.route("/change-password").post(verifyJWT, changeCurrentPassword)

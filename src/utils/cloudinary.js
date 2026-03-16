@@ -31,7 +31,22 @@ const uploadOnCloudinary = async (localFilePath) => {
 
 
 
-export {uploadOnCloudinary}
+//for deleting files from db(jab hum update kare pic-avatar/cover)
+const deleteFromCloudinary = async (publicId) => {
+    try {
+        if (!publicId) return null
+
+        const response = await cloudinary.uploader.destroy(publicId)
+        return response
+    } catch (error) {
+        console.log("Error deleting from cloudinary:", error)
+        return null
+    }
+}
+
+
+
+export {uploadOnCloudinary,deleteFromCloudinary}
 
 
 // Frontend upload
