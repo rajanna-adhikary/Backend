@@ -68,6 +68,12 @@ import dashboardRouter from "./routes/dashboard.routes.js";
 app.use("/api/v1/dashboard", dashboardRouter);
 
 
+//ai title gen
+import aiRouter from "./routes/ai.routes.js";
+
+app.use("/api/v1/ai", aiRouter);
+
+
 
 
 
