@@ -7,7 +7,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
 
-const generateAccessAndRefereshTokens = async(userId) =>{
+const generateAccessAndRefreshTokens = async(userId) =>{
     try {
         const user = await User.findById(userId)
         const accessToken = user.generateAccessToken()
@@ -77,7 +77,11 @@ const registerUser= asyncHandler(async(req,res)=>{
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    let coverImage;
+
+if (coverImageLocalPath) {
+    coverImage = await uploadOnCloudinary(coverImageLocalPath)
+}
 
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required")
@@ -143,13 +147,13 @@ const loginUser = asyncHandler(async (req, res) =>{
     throw new ApiError(401, "Invalid user credentials")
     }
 //5 uper method bhi lika hua hai
-    const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
+    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
 
      const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 //6
  const options = {
         httpOnly: true, ////To prevent man-in-the-middle attacks/If someone intercepts HTTP traffic, they could steal tokens.
-        secure: true
+        secure: process.env.NODE_ENV === "production"
     }
 
     return res
@@ -185,7 +189,7 @@ const logoutUser = asyncHandler(async(req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: process.env.NODE_ENV === "production"
     }
 
     return res
@@ -224,12 +228,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
         const options = {
             httpOnly: true,
-            secure: true
+           secure: process.env.NODE_ENV === "production"
         }
 
         // ✅ FIXED
         const { accessToken, refreshToken } =
-            await generateAccessAndRefereshTokens(user._id)
+            await generateAccessAndRefreshTokens(user._id)
 
         return res
             .status(200)

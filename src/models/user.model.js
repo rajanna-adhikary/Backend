@@ -16,6 +16,8 @@ const userSchema=new Schema({
             unique: true,
             lowercase: true,
             trim: true, 
+            
+           match: [/.+\@.+\..+/, "Please use a valid email"]
         },
         fullName: {
             type: String,

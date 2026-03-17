@@ -5,11 +5,13 @@ const commentSchema = new Schema(
     {
         content: {
             type: String,
-            required: true
+            required: true,
+            trim: true
         },
         video: {
             type: Schema.Types.ObjectId,
-            ref: "Video"
+            ref: "Video",
+            index:true
         },
         owner: {
             type: Schema.Types.ObjectId,

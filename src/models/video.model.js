@@ -31,7 +31,8 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
         },
         owner: {
             type: Schema.Types.ObjectId,
-            ref: "User"
+            ref: "User",
+            index:true
         }
 
     }, 
